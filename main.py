@@ -1,5 +1,8 @@
+# Get ready for the world's worst code :sunglasses:
+
 # import the pygame module 
 import pygame
+# Why are these two here?? I forget
 import sys
 import os
 
@@ -32,6 +35,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load("images/lil_dude.png")
         self.rect = self.image.get_rect()
+        self.velocity_y = 0  
+        self.gravity = 0.5
     
     def moveRight(self, pixels):
         if self.rect.x + pixels <= WIDTH - self.rect.width: 
@@ -41,13 +46,24 @@ class Player(pygame.sprite.Sprite):
         if self.rect.x - pixels >= 0: 
             self.rect.x -= pixels
 
-    def moveUp(self, pixels):
+    def jump(self, pixels):
         if self.rect.y + pixels >= 0:
             self.rect.y -= pixels
 
     def moveDown(self, pixels):
         if self.rect.y + pixels <= (ground_pos[1]+10) - self.rect.height:
             self.rect.y += pixels
+
+    # Gravity Gaming :D
+    # No shot this works
+    def apply_newtons_law(self):  
+        self.velocity_y += self.gravity  
+        self.rect.y += self.velocity_y  
+
+        # Check if the player is on the floor  
+        if self.rect.y > ground_pos[1] - self.rect.height:  
+            self.rect.y = ground_pos[1] - self.rect.height  
+            self.velocity_y = 0
 
 class Objects():
     def drawCircle(color, center, radius):
@@ -78,16 +94,16 @@ while running:
         if event.type == pygame.QUIT:  
             running = False
     
-
+    Player.apply_newtons_law(player)
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
         player.moveLeft(10)   
     if keys[pygame.K_RIGHT]:
        player.moveRight(10)
-    if keys[pygame.K_DOWN]: #Replace with jump later
+    if keys[pygame.K_DOWN]: #TODO: Crouch
         player.moveDown(10)
     if keys[pygame.K_UP]: 
-        player.moveUp(10)
+        player.jump(10)
 
     Window.window.fill(Window.background_colour)
     player_list.update()
@@ -100,7 +116,7 @@ while running:
             print("Coin collected!")
             coin_count += 1
     count_text = system_font.render(f'Coins: {coin_count}', True, (255, 255, 255))
-    Window.window.blit(count_text, (10, 10))  # Display in the top-left corner
+    Window.window.blit(count_text, (10, 10))
     floor = Objects.drawRect((0,0,0), ground_pos)
     clock.tick(FPS)
     pygame.display.update()
