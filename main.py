@@ -69,7 +69,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += self.velocity_y  
             self.velocity_y += self.gravity
             #It's supposed to stop you from being able to jump while under the platform, but I'm stupid so I'm leaving it how it is
-            if self.rect.y >= left_plat_pos[1] and self.rect.x <= left_plat_pos[2] and self.rect.x >= left_plat_pos[0]:
+            if self.rect.y >= left_plat_pos[1] and self.rect.x <= left_plat_pos[2]:
+                self.isJumping = False
+            
+            if self.rect.y >= right_plat_pos[1] and self.rect.x >= right_plat_pos[0]:
                 self.isJumping = False
 
             if self.velocity_y > 0:  
@@ -96,7 +99,11 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = left_plat_pos[1] - self.rect.height  
             self.velocity_y = 0
             self.isGrounded = True
-   
+
+        if self.rect.colliderect(right_plat_pos) and self.velocity_y >= 0:  
+            self.rect.y = right_plat_pos[1] - self.rect.height  
+            self.velocity_y = 0
+            self.isGrounded = True
 
 class Objects():
     def drawCircle(color, center, radius):
@@ -121,6 +128,7 @@ score = 0
 #x,y,width,height
 ground_pos = (0,HEIGHT-100,WIDTH,100)
 left_plat_pos = (0, CENTER[1]+40, 200, 20)
+right_plat_pos = (880, CENTER[1]+40, 200, 20)
 
 #The game loop
 running = True
@@ -158,6 +166,7 @@ while running:
 
     floor = Objects.drawRect((0,0,0), ground_pos)
     left_plat = Objects.drawRect((0,0,0), left_plat_pos)
+    right_plat = Objects.drawRect((0,0,0), right_plat_pos)
 
     clock.tick(FPS)
     pygame.display.update()
