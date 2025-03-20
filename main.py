@@ -10,6 +10,7 @@ import os
 pygame.init()
 pygame.font.init()
 system_font = pygame.font.Font("fonts/system-bold.ttf", 50)
+highscore_file = open("highscore.txt", "r")
 
 #Constants
 WIDTH = 1080
@@ -125,6 +126,8 @@ coin_pos = Objects.spawn_coin(coin_radius)
 coin_visible = True
 score = 0
 
+highscore = highscore_file.read()
+
 #x,y,width,height
 ground_pos = (0,HEIGHT-100,WIDTH,100)
 left_plat_pos = (0, CENTER[1]+40, 200, 20)
@@ -161,8 +164,16 @@ while running:
             score += 100
             coin_pos = Objects.spawn_coin(coin_radius)
             circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
-    count_text = system_font.render(f'Score: {score}', True, (255, 255, 255))
-    Window.window.blit(count_text, (10, 10))
+    score_text = system_font.render(f'Score: {score}', True, (255, 255, 255))
+    Window.window.blit(score_text, (10, 10))
+
+    if score > int(highscore):
+        highscore_file = open("highscore.txt", "w")
+        highscore_file.write(str(score))
+    highscore_file = open("highscore.txt", "r")
+    highscore = highscore_file.read()
+    highscore_text = system_font.render(f'Highscore: {highscore}', True, (255, 255, 255))
+    Window.window.blit(highscore_text, (10, 50))
 
     floor = Objects.drawRect((0,0,0), ground_pos)
     left_plat = Objects.drawRect((0,0,0), left_plat_pos)
