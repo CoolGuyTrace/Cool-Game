@@ -38,6 +38,7 @@ class Keys:
     right = pygame.K_RIGHT
     up = pygame.K_UP
     down = pygame.K_DOWN
+    space = pygame.K_SPACE
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -64,6 +65,10 @@ class Player(pygame.sprite.Sprite):
                 self.isGrounded = False  
                 self.velocity_y = velocity
 
+    def ghost(self):
+        self.image = pygame.image.load("images/lil_ghost.png")
+    def unGhost(self):
+        self.image = pygame.image.load("images/lil_dude.png")
     def update(self):  
         # Manage jumping and falling  
         if self.isJumping:  
@@ -158,6 +163,11 @@ while running:
         player.moveDown(10)
     if pressed[Keys.up]: 
         player.jump(-15)
+    if pressed[Keys.space]:
+        player.ghost()
+    else:
+        player.unGhost()
+
 
     Window.window.fill(Window.background_colour)
     player_list.update()
@@ -165,21 +175,23 @@ while running:
 
     #Good coin
     circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
-    if player.rect.collidepoint(coin_pos):
-        score += 100
-        coin_pos = Objects.spawn_coin(coin_radius)
-        circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
-        evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
-        evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
+    if not pressed[Keys.space]:
+        if player.rect.collidepoint(coin_pos):
+            score += 100
+            coin_pos = Objects.spawn_coin(coin_radius)
+            circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
+            evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
+            evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
 
     #Evil coin
     evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, evil_coin_radius)
-    if player.rect.collidepoint(evil_coin_pos):
-        score -= 300
-        evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
-        evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
-        coin_pos = Objects.spawn_coin(coin_radius)
-        circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
+    if not pressed[Keys.space]:
+        if player.rect.collidepoint(evil_coin_pos):
+            score -= 300
+            evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
+            evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
+            coin_pos = Objects.spawn_coin(coin_radius)
+            circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
 
     if score < 0:
         running = False
