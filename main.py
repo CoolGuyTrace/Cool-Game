@@ -10,6 +10,7 @@ import os
 pygame.init()
 pygame.font.init()
 system_font = pygame.font.Font("fonts/system-bold.ttf", 50)
+highscore_file = open("highscore.txt", "r")
 
 #Constants
 WIDTH = 1080
@@ -37,6 +38,7 @@ class Keys:
     right = pygame.K_RIGHT
     up = pygame.K_UP
     down = pygame.K_DOWN
+    space = pygame.K_SPACE
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -63,6 +65,10 @@ class Player(pygame.sprite.Sprite):
                 self.isGrounded = False  
                 self.velocity_y = velocity
 
+    def ghost(self):
+        self.image = pygame.image.load("images/lil_ghost.png")
+    def unGhost(self):
+        self.image = pygame.image.load("images/lil_dude.png")
     def update(self):  
         # Manage jumping and falling  
         if self.isJumping:  
@@ -114,6 +120,10 @@ class Objects():
         x = random.randint(0, WIDTH - radius * 2)  
         y = random.randint(0, HEIGHT-100 - radius * 2)  
         return (x, y)
+    def spawn_coin(radius):  
+        x = random.randint(0, WIDTH - radius * 2)  
+        y = random.randint(0, HEIGHT-100 - radius * 2)  
+        return (x, y)
 
 #Create the playable character
 player = Player()
@@ -122,8 +132,12 @@ player_list.add(player)
   
 coin_radius = 20
 coin_pos = Objects.spawn_coin(coin_radius)  
-coin_visible = True
 score = 0
+
+evil_coin_radius = 25
+evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
+
+highscore = highscore_file.read()
 
 #x,y,width,height
 ground_pos = (0,HEIGHT-100,WIDTH,100)
@@ -149,20 +163,49 @@ while running:
         player.moveDown(10)
     if pressed[Keys.up]: 
         player.jump(-15)
+    if pressed[Keys.space]:
+        player.ghost()
+    else:
+        player.unGhost()
+
 
     Window.window.fill(Window.background_colour)
     player_list.update()
     player_list.draw(Window.window)
 
-    #Make a circle for the player to grab
-    if coin_visible:
-        circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
+    #Good coin
+    circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
+    if not pressed[Keys.space]:
         if player.rect.collidepoint(coin_pos):
             score += 100
             coin_pos = Objects.spawn_coin(coin_radius)
             circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
-    count_text = system_font.render(f'Score: {score}', True, (255, 255, 255))
-    Window.window.blit(count_text, (10, 10))
+            evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
+            evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
+
+    #Evil coin
+    evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, evil_coin_radius)
+    if not pressed[Keys.space]:
+        if player.rect.collidepoint(evil_coin_pos):
+            score -= 300
+            evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
+            evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
+            coin_pos = Objects.spawn_coin(coin_radius)
+            circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
+
+    if score < 0:
+        running = False
+
+    score_text = system_font.render(f'Score: {score}', True, (255, 255, 255))
+    Window.window.blit(score_text, (10, 10))
+
+    if score > int(highscore):
+        highscore_file = open("highscore.txt", "w")
+        highscore_file.write(str(score))
+    highscore_file = open("highscore.txt", "r")
+    highscore = highscore_file.read()
+    highscore_text = system_font.render(f'Highscore: {highscore}', True, (255, 255, 255))
+    Window.window.blit(highscore_text, (10, 50))
 
     floor = Objects.drawRect((0,0,0), ground_pos)
     left_plat = Objects.drawRect((0,0,0), left_plat_pos)
