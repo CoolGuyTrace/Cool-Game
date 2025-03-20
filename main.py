@@ -129,6 +129,7 @@ class Objects():
 player = Player()
 player_list = pygame.sprite.Group()
 player_list.add(player)
+ghost_mode = False
   
 coin_radius = 20
 coin_pos = Objects.spawn_coin(coin_radius)  
@@ -165,8 +166,10 @@ while running:
         player.jump(-15)
     if pressed[Keys.space]:
         player.ghost()
+        ghost_mode = True
     else:
         player.unGhost()
+        ghost_mode = False
 
 
     Window.window.fill(Window.background_colour)
@@ -175,7 +178,7 @@ while running:
 
     #Good coin
     circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
-    if not pressed[Keys.space]:
+    if not ghost_mode:
         if player.rect.collidepoint(coin_pos):
             score += 100
             coin_pos = Objects.spawn_coin(coin_radius)
@@ -185,7 +188,7 @@ while running:
 
     #Evil coin
     evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, evil_coin_radius)
-    if not pressed[Keys.space]:
+    if not ghost_mode:
         if player.rect.collidepoint(evil_coin_pos):
             score -= 300
             evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
