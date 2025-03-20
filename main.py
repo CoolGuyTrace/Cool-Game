@@ -10,7 +10,12 @@ import os
 pygame.init()
 pygame.font.init()
 system_font = pygame.font.Font("fonts/system-bold.ttf", 50)
-highscore_file = open("highscore.txt", "r")
+try:
+    highscore_file = open("highscore.txt", "r")
+except FileNotFoundError:
+    highscore_file = open("highscore.txt", "w")
+    highscore_file.write("0")
+    highscore_file = open("highscore.txt", "r")
 
 #Constants
 WIDTH = 1080
