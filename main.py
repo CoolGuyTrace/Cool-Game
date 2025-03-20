@@ -142,8 +142,8 @@ highscore = highscore_file.read()
 
 #x,y,width,height
 ground_pos = (0,HEIGHT-100,WIDTH,100)
-left_plat_pos = (0, CENTER[1]+40, 200, 20)
-right_plat_pos = (880, CENTER[1]+40, 200, 20)
+left_plat_pos = (0, CENTER[1]+40, 220, 20)
+right_plat_pos = (860, CENTER[1]+40, 220, 20)
 
 #The game loop
 running = True
