@@ -115,6 +115,10 @@ class Objects():
         x = random.randint(0, WIDTH - radius * 2)  
         y = random.randint(0, HEIGHT-100 - radius * 2)  
         return (x, y)
+    def spawn_coin(radius):  
+        x = random.randint(0, WIDTH - radius * 2)  
+        y = random.randint(0, HEIGHT-100 - radius * 2)  
+        return (x, y)
 
 #Create the playable character
 player = Player()
@@ -123,8 +127,10 @@ player_list.add(player)
   
 coin_radius = 20
 coin_pos = Objects.spawn_coin(coin_radius)  
-coin_visible = True
 score = 0
+
+evil_coin_radius = 25
+evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
 
 highscore = highscore_file.read()
 
@@ -157,13 +163,27 @@ while running:
     player_list.update()
     player_list.draw(Window.window)
 
-    #Make a circle for the player to grab
-    if coin_visible:
+    #Good coin
+    circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
+    if player.rect.collidepoint(coin_pos):
+        score += 100
+        coin_pos = Objects.spawn_coin(coin_radius)
         circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
-        if player.rect.collidepoint(coin_pos):
-            score += 100
-            coin_pos = Objects.spawn_coin(coin_radius)
-            circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
+        evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
+        evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
+
+    #Evil coin
+    evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, evil_coin_radius)
+    if player.rect.collidepoint(evil_coin_pos):
+        score -= 300
+        evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
+        evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
+        coin_pos = Objects.spawn_coin(coin_radius)
+        circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
+
+    if score < 0:
+        running = False
+
     score_text = system_font.render(f'Score: {score}', True, (255, 255, 255))
     Window.window.blit(score_text, (10, 10))
 
