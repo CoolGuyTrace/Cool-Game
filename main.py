@@ -2,17 +2,20 @@
 
 # import the pygame module 
 import pygame
+#import other modules
 import random
+import math
 # Why are these two here?? I forget
 import sys
 import os
 
 pygame.init()
 pygame.font.init()
-system_font = pygame.font.Font("fonts/system-bold.ttf", 50)
+system_font = pygame.font.Font("fonts/system-bold.ttf", 30)
 try:
     highscore_file = open("highscore.txt", "r")
 except FileNotFoundError:
+    #Creates highscore.txt if it doesn't exist
     highscore_file = open("highscore.txt", "w")
     highscore_file.write("0")
     highscore_file = open("highscore.txt", "r")
@@ -22,6 +25,7 @@ WIDTH = 1080
 HEIGHT = 720
 CENTER = (WIDTH/2, HEIGHT/2)
 FPS = 60
+WHITE = (255,255,255)
 clock = pygame.time.Clock()
 
 class Window:
@@ -134,6 +138,7 @@ class Objects():
 player = Player()
 player_list = pygame.sprite.Group()
 player_list.add(player)
+player_health = 3
 ghost_mode = False
   
 coin_radius = 20
@@ -186,6 +191,7 @@ while running:
     if not ghost_mode:
         if player.rect.collidepoint(coin_pos):
             score += 100
+            player_health += 0.1
             coin_pos = Objects.spawn_coin(coin_radius)
             circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
             evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
@@ -195,16 +201,16 @@ while running:
     evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, evil_coin_radius)
     if not ghost_mode:
         if player.rect.collidepoint(evil_coin_pos):
-            score -= 300
+            player_health -= 1
             evil_coin_pos = Objects.spawn_coin(evil_coin_radius)
             evil_circle = Objects.drawCircle((162, 25, 25), evil_coin_pos, coin_radius)
             coin_pos = Objects.spawn_coin(coin_radius)
             circle = Objects.drawCircle((255, 215, 0), coin_pos, coin_radius)
 
-    if score < 0:
+    if math.floor(player_health) <= 0:
         running = False
 
-    score_text = system_font.render(f'Score: {score}', True, (255, 255, 255))
+    score_text = system_font.render(f'Score: {score}', True, WHITE)
     Window.window.blit(score_text, (10, 10))
 
     if score > int(highscore):
@@ -212,8 +218,11 @@ while running:
         highscore_file.write(str(score))
     highscore_file = open("highscore.txt", "r")
     highscore = highscore_file.read()
-    highscore_text = system_font.render(f'Highscore: {highscore}', True, (255, 255, 255))
+    highscore_text = system_font.render(f'Highscore: {highscore}', True, WHITE)
     Window.window.blit(highscore_text, (10, 50))
+
+    health_text = system_font.render(F"Health: {math.floor(player_health)}", True, WHITE)
+    Window.window.blit(health_text, (10,100))
 
     floor = Objects.drawRect((0,0,0), ground_pos)
     left_plat = Objects.drawRect((0,0,0), left_plat_pos)
